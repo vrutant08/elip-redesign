@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Elip — Your career has an agent now.</title>
+  <meta name="description" content="Concept redesign of Elip, the AI career agent that remembers what matters to you, explains each match, and adapts as your plans change." />
+  <meta name="theme-color" content="#F4F0E6" />
+  <link rel="icon" href="/elip-mark.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Geist:wght@300..800&family=JetBrains+Mono:wght@400;500;700&family=Michroma&display=swap" rel="stylesheet" />
+</head>
+<body class="is-loading">
+
+  <!-- ───────────── SVG defs ───────────── -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="mark" viewBox="0 0 120 120">
+        <rect x="6" y="6" width="108" height="108" rx="30" fill="#1E1B16" />
+        <rect x="15" y="15" width="90" height="90" rx="23" fill="#F6A800" />
+        <circle cx="38" cy="60" r="10" fill="#1E1B16" />
+        <circle cx="60" cy="60" r="10" fill="#1E1B16" />
+        <circle cx="82" cy="60" r="10" fill="#1E1B16" />
+      </symbol>
+      <!-- Custom ELIP wordmark — wide geometric, stemless E -->
+      <g id="wordmark" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="square" stroke-linejoin="round">
+        <path d="M92 10 H24 Q10 10 10 24 V28" />
+        <path d="M18 60 H80" />
+        <path d="M10 92 V96 Q10 110 24 110 H92" />
+        <path d="M130 10 V96 Q130 110 144 110 H212" />
+        <path d="M252 10 V110" />
+        <path d="M292 110 V24 Q292 10 306 10 H364 Q378 10 378 24 V56 Q378 70 364 70 H300" />
+      </g>
+      <symbol id="arrow" viewBox="0 0 24 24">
+        <path d="M4 12 H19 M13 6 L19 12 L13 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ───────────── LOADER ───────────── -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__grid"></div>
+    <div class="loader__meta loader__meta--tl mono">ELIP — INTRO &amp; MOTION SYSTEM</div>
+    <div class="loader__meta loader__meta--tr mono"><span id="loaderTime">0.0</span>s</div>
+    <div class="loader__meta loader__meta--bl mono" id="loaderCaption">F01 — TYPING… DOTS PULSE</div>
+    <div class="loader__meta loader__meta--br mono"><span id="loaderPct">000</span>%</div>
+
+    <div class="loader__stage">
+      <div class="loader__anchor" id="loaderAnchor"></div>
+      <svg class="loader__svg" id="loaderSvg" viewBox="0 0 240 240">
+        <g class="loader__rings">
+          <circle cx="120" cy="120" r="40" />
+          <circle cx="120" cy="120" r="64" />
+          <circle cx="120" cy="120" r="88" />
+          <circle cx="120" cy="120" r="112" />
+        </g>
+        <rect class="loader__fill" x="30" y="30" width="180" height="180" rx="48" />
+        <rect class="loader__stroke" x="21" y="21" width="198" height="198" rx="56" />
+        <g class="loader__dots">
+          <ellipse cx="76" cy="120" rx="17" ry="17" />
+          <ellipse cx="120" cy="120" rx="17" ry="17" />
+          <ellipse cx="164" cy="120" rx="17" ry="17" />
+        </g>
+        <g class="loader__arcs">
+          <path d="M60 150 Q76 70 98 120" />
+          <path d="M104 150 Q120 60 142 120" />
+          <path d="M148 150 Q164 70 186 120" />
+        </g>
+      </svg>
+      <div class="loader__burst">
+        <span class="lw lw--e"><svg viewBox="-12 -2 120 124"><use href="#wordmark" /></svg></span>
+        <span class="lw lw--l"><svg viewBox="118 -2 110 124"><use href="#wordmark" /></svg></span>
+        <span class="lw-gap"></span>
+        <span class="lw lw--i"><svg viewBox="238 -2 30 124"><use href="#wordmark" /></svg></span>
+        <span class="lw lw--p"><svg viewBox="280 -2 110 124"><use href="#wordmark" /></svg></span>
+      </div>
+      <div class="loader__speed">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
+    <div class="loader__wipe"></div>
+  </div>
+
+  <!-- ───────────── CHROME ───────────── -->
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="grid-overlay" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="crosshair crosshair--tl" aria-hidden="true"></div>
+  <div class="crosshair crosshair--tr" aria-hidden="true"></div>
+  <div class="crosshair crosshair--bl" aria-hidden="true"></div>
+  <div class="crosshair crosshair--br" aria-hidden="true"></div>
+  <div class="cursor" id="cursor" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="nav" id="nav">
+    <a href="#top" class="nav__brand" aria-label="Elip home">
+      <svg class="nav__mark"><use href="#mark" /></svg>
+      <svg class="nav__word" viewBox="-12 -2 414 124"><use href="#wordmark" /></svg>
+    </a>
+    <nav class="nav__links mono">
+      <a href="#how" data-slice>Candidates</a>
+      <a href="#companies" data-slice>Companies</a>
+      <a href="#pricing" data-slice>Pricing</a>
+      <a href="#questions" data-slice>Questions</a>
+    </nav>
+    <a class="btn btn--chamfer btn--sm" href="https://dashboard.tryelip.ai/" target="_blank" rel="noopener">
+      <span class="btn__shadow"></span>
+      <span class="btn__body"><span class="btn__label">Start free</span><span class="btn__tab"><svg><use href="#arrow" /></svg></span></span>
+    </a>
+  </header>
+
+  <main id="top">
+
+    <!-- ───────────── HERO ───────────── -->
+    <section class="hero" id="hero" data-logo-section="hero">
+      <div class="hero__meta mono">
+        <span>[ 001 ] AI CAREER AGENT</span>
+        <span class="hero__meta-mid">FREE FOR CANDIDATES</span>
+        <span>SAN FRANCISCO — YC W25</span>
+      </div>
+
+      <h1 class="hero__title display" aria-label="Your career has an agent now.">
+        <span class="hl hl--1" data-kinetic>Your career</span>
+        <span class="hl hl--2"><span class="hl__box hl__box--ink" data-kinetic>has an</span></span>
+        <span class="hl hl--3" data-kinetic>agent</span>
+        <span class="hl hl--4"><span class="hl__box hl__box--amber" data-kinetic>now.</span></span>
+      </h1>
+
+      <div class="hero__anchor" data-logo-anchor="hero"></div>
+
+      <div class="hero__foot">
+        <div class="spec">
+          <div class="spec__head mono"><span>SPEC / 01</span><span>●●●</span></div>
+          <p>Elip finds jobs around what you want next. It remembers your preferences, explains each match, and adapts as your plans change.</p>
+        </div>
+        <div class="hero__ctas">
+          <a class="btn btn--chamfer" href="https://dashboard.tryelip.ai/" target="_blank" rel="noopener">
+            <span class="btn__shadow"></span>
+            <span class="btn__body"><span class="btn__label">Start with your resume</span><span class="btn__tab"><svg><use href="#arrow" /></svg></span></span>
+          </a>
+          <a class="btn btn--dots" href="#companies">
+            <span class="btn__dots"><i></i><i></i><i></i></span>
+            <span class="btn__label">For companies</span>
+          </a>
+        </div>
+        <div class="hero__scroll mono">
+          <span>SCROLL</span>
+          <span class="hero__scroll-track"><i></i></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── MARQUEE ───────────── -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track" id="marquee">
+        <span>Learns</span><b>●●●</b><span>Looks</span><b>●●●</b><span>Filters</span><b>●●●</b><span>Explains</span><b>●●●</b><span>Tailors</span><b>●●●</b>
+        <span>Learns</span><b>●●●</b><span>Looks</span><b>●●●</b><span>Filters</span><b>●●●</b><span>Explains</span><b>●●●</b><span>Tailors</span><b>●●●</b>
+      </div>
+    </div>
+
+    <!-- ───────────── HOW IT WORKS (pinned morph) ───────────── -->
+    <section class="how" id="how">
+      <div class="how__pin">
+        <div class="how__top mono">
+          <span>[ 002 ] HOW IT WORKS</span>
+          <div class="how__progress"><i></i><i></i><i></i><i></i><i></i></div>
+          <span><b id="howFrame">F01</b> / F05</span>
+        </div>
+
+        <div class="how__body">
+          <div class="how__copy">
+            <div class="how__num" id="howNum">01</div>
+            <h2 class="how__title display" id="howTitle">Learns</h2>
+            <p class="how__sub" id="howSub">Your experience. Your next move.</p>
+            <p class="how__desc" id="howDesc">Start with your resume and a conversation. Elip learns what you've done, what you want next — and what you never want to do again.</p>
+          </div>
+
+          <div class="how__stage">
+            <div class="stage__label mono"><span id="stageLabel">F07 — SHAPE MORPH</span><span id="stageZ">Z = 0.00</span></div>
+            <div class="stage__ticks"></div>
+            <div class="stack" id="stack"></div>
+            <div class="stage__caption mono" id="stageCaption">2D → 3D EXTRUDE</div>
+          </div>
+        </div>
+
+        <div class="how__path mono">
+          <div class="how__line"><i id="howDot"></i></div>
+          <span>Learns</span><span>Looks</span><span>Filters</span><span>Explains</span><span>Tailors</span>
+        </div>
+      </div>
+
+      <!-- hidden morph targets -->
+      <svg class="morph-src" aria-hidden="true">
+        <path id="ic-doc" d="M24 8 H60 L80 28 V92 H24 Z" />
+        <path id="ic-mag" d="M42 12 A30 30 0 1 1 41.9 12 Z M57 66 L66 57 L92 83 L83 92 Z" />
+        <path id="ic-fun" d="M8 14 H92 L60 50 V84 L40 94 V50 Z" />
+        <path id="ic-bub" d="M24 14 H76 Q90 14 90 28 V60 Q90 74 76 74 H46 L26 92 L30 74 H24 Q10 74 10 60 V28 Q10 14 24 14 Z" />
+        <path id="ic-sci" d="M28 58 A15 15 0 1 1 27.9 58 Z M72 58 A15 15 0 1 1 71.9 58 Z M36 62 L62 6 L71 10 L46 66 Z M64 62 L38 6 L29 10 L54 66 Z" />
+      </svg>
+    </section>
+
+    <!-- ───────────── FILTERS (interactive) ───────────── -->
+    <section class="filters" id="filters">
+      <header class="sec-head">
+        <span class="mono">[ 003 ] DEALBREAKERS</span>
+        <h2 class="display" data-kinetic-scroll>Your dealbreakers count.</h2>
+        <p>Tell Elip what you never want. It sets aside roles that cross the line — before they ever reach you. Try it.</p>
+      </header>
+
+      <div class="chips" id="chips">
+        <button class="chip" data-rule="crypto"><span class="chip__box"></span>No crypto</button>
+        <button class="chip" data-rule="relocate"><span class="chip__box"></span>No relocation</button>
+        <button class="chip" data-rule="salary"><span class="chip__box"></span>Nothing under $150k</button>
+        <button class="chip" data-rule="office"><span class="chip__box"></span>No 5-day office</button>
+        <button class="chip" data-rule="agency"><span class="chip__box"></span>No agencies</button>
+      </div>
+
+      <div class="board">
+        <div class="board__col">
+          <div class="board__head mono"><span>MATCHES</span><span id="matchCount">08</span></div>
+          <div class="board__list" id="matchList"></div>
+        </div>
+        <div class="board__col board__col--aside">
+          <div class="board__head mono"><span>SET ASIDE</span><span id="asideCount">00</span></div>
+          <div class="board__list board__list--aside" id="asideList"></div>
+        </div>
+      </div>
+      <p class="footnote mono">Illustrative. Roles and companies shown are fictional.</p>
+    </section>
+
+    <!-- ───────────── EXPLAINS + TAILORS ───────────── -->
+    <section class="explain" id="explain">
+      <header class="sec-head sec-head--center">
+        <span class="mono">[ 004 ] EXPLAINS · TAILORS</span>
+        <h2 class="display" data-kinetic-scroll>Why this role. Why you.</h2>
+      </header>
+
+      <div class="explain__grid">
+        <article class="match" id="matchCard">
+          <div class="match__top mono"><span>MATCH / 0412</span><span>06:00 AM</span></div>
+          <h3>Senior Product Designer</h3>
+          <p class="match__co mono">PARABOLA LABS — REMOTE (US) — $172K–$195K</p>
+          <div class="match__fit">
+            <div class="fit"><span>Design systems</span><b><i style="--w:.94"></i></b><em>94</em></div>
+            <div class="fit"><span>Team size you want</span><b><i style="--w:.88"></i></b><em>88</em></div>
+            <div class="fit"><span>Growth path</span><b><i style="--w:.81"></i></b><em>81</em></div>
+          </div>
+          <ul class="match__why">
+            <li><i class="ok"></i>You led a design system at a Series B. They're building theirs.</li>
+            <li><i class="ok"></i>You asked for a team under 50. They're 34.</li>
+            <li><i class="check"></i>Still worth checking: on-call expectations for launches.</li>
+          </ul>
+        </article>
+
+        <article class="resume" id="resume">
+          <div class="resume__top mono"><span>RESUME / TAILORED</span><span class="resume__status">AWAITING YOUR OK</span></div>
+          <div class="resume__body">
+            <p class="resume__name">Alex Rivera</p>
+            <p class="mono resume__role">PRODUCT DESIGNER</p>
+            <ul class="resume__lines">
+              <li><del>Worked on UI components for web app.</del><ins>Built and scaled a 140-component design system used by 6 product teams.</ins></li>
+              <li><del>Helped with user research.</del><ins>Ran 40+ interviews that reshaped onboarding — activation up 23%.</ins></li>
+              <li>Partnered with engineering on a monthly release cadence.</li>
+              <li><del>Familiar with Figma.</del><ins>Figma power user; maintained tokens synced to code.</ins></li>
+            </ul>
+          </div>
+          <div class="resume__actions">
+            <button class="btn btn--chamfer btn--sm" type="button" id="approveBtn">
+              <span class="btn__shadow"></span>
+              <span class="btn__body"><span class="btn__label">Approve changes</span><span class="btn__tab"><svg><use href="#arrow" /></svg></span></span>
+            </button>
+            <span class="mono resume__note">You approve every change.</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────── EACH MORNING ───────────── -->
+    <section class="morning" id="morning">
+      <div class="morning__pin">
+        <div class="morning__sun" id="sun"><i></i><i></i><i></i></div>
+        <div class="morning__text">
+          <span class="mono morning__kicker">[ 005 ] 06:00 AM — EVERY DAY</span>
+          <h2 class="display morning__l1" id="mL1">Each morning,</h2>
+          <h2 class="display morning__l2" id="mL2">a few.</h2>
+          <p class="morning__l3 mono" id="mL3">On a quiet morning, none.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── TWO SIDES / PRICING ───────────── -->
+    <section class="sides" id="companies">
+      <header class="sec-head">
+        <span class="mono" id="pricing">[ 006 ] TWO SIDES — ONE AGENT</span>
+        <h2 class="display" data-kinetic-scroll>A career agent for you. A hiring agent for your team.</h2>
+      </header>
+
+      <div class="switch" id="sideSwitch" role="tablist">
+        <button class="switch__opt is-on" data-side="cand" role="tab">For candidates</button>
+        <button class="switch__opt" data-side="comp" role="tab">For companies</button>
+        <span class="switch__thumb"></span>
+      </div>
+
+      <div class="sides__panel" id="sidePanel">
+        <div class="price">
+          <div class="price__fig" id="priceFig">$0</div>
+          <p class="price__cap mono" id="priceCap">FOR CANDIDATES. ALWAYS.</p>
+          <p class="price__body" id="priceBody">Companies pay Elip when they hire. You never pay. Nobody can pay to appear on a shortlist.</p>
+        </div>
+        <ol class="flow" id="flow">
+          <li><b>01</b><div><h4 class="display">Learns</h4><p>Your resume and a conversation about what's next.</p></div></li>
+          <li><b>02</b><div><h4 class="display">Matches</h4><p>A few roles each morning, each one explained.</p></div></li>
+          <li><b>03</b><div><h4 class="display">Applies</h4><p>Your tailored resume goes out only after you approve it.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ───────────── FAQ ───────────── -->
+    <section class="faq" id="questions">
+      <header class="sec-head">
+        <span class="mono">[ 007 ] QUESTIONS</span>
+        <h2 class="display" data-kinetic-scroll>Asked, answered.</h2>
+      </header>
+      <div class="faq__list" id="faq">
+        <details><summary><span class="mono">Q.01</span>Why is it free?<i class="pm"></i></summary><p>Companies pay Elip when they hire. You never pay.</p></details>
+        <details><summary><span class="mono">Q.02</span>Who does Elip work for?<i class="pm"></i></summary><p>Companies pay when they hire, but nobody can pay to appear on a shortlist. You choose what to pursue, approve your tailored resume, and decide whether to accept an introduction.</p></details>
+        <details><summary><span class="mono">Q.03</span>How often do matches come?<i class="pm"></i></summary><p>Each morning, a few. On a quiet morning, none.</p></details>
+        <details><summary><span class="mono">Q.04</span>What if I change my mind?<i class="pm"></i></summary><p>Tell Elip what has changed. It remembers your preferences across conversations and uses your updates in future recommendations.</p></details>
+        <details><summary><span class="mono">Q.05</span>Can my current employer see my profile?<i class="pm"></i></summary><p>Not if you hide it. You can hide your profile from any employer, including your current one.</p></details>
+        <details><summary><span class="mono">Q.06</span>What does it cost companies?<i class="pm"></i></summary><p>10% of the hire's first-year base salary, only when you hire. Full refund if they leave within 3 months. No fee for people you already knew in the prior 6 months.</p></details>
+      </div>
+    </section>
+
+    <!-- ───────────── FOOTER ───────────── -->
+    <footer class="foot" id="foot" data-logo-section="foot">
+      <div class="foot__cta">
+        <span class="mono">[ 008 ] READY WHEN YOU ARE</span>
+        <h2 class="display" data-kinetic-scroll>Start with your resume.</h2>
+        <div class="foot__anchor" data-logo-anchor="foot"></div>
+        <a class="btn btn--chamfer btn--lg" href="https://dashboard.tryelip.ai/" target="_blank" rel="noopener">
+          <span class="btn__shadow"></span>
+          <span class="btn__body"><span class="btn__label">Meet your agent</span><span class="btn__tab"><svg><use href="#arrow" /></svg></span></span>
+        </a>
+      </div>
+
+      <div class="foot__word" id="footWord" aria-label="Elip">
+        <svg viewBox="-12 -2 120 124"><use href="#wordmark" /></svg>
+        <svg viewBox="118 -2 110 124"><use href="#wordmark" /></svg>
+        <svg viewBox="238 -2 30 124"><use href="#wordmark" /></svg>
+        <svg viewBox="280 -2 110 124"><use href="#wordmark" /></svg>
+      </div>
+
+      <div class="foot__bar mono">
+        <span>gaurav@tryelip.ai</span>
+        <span>San Francisco, CA</span>
+        <span>Backed by Y Combinator</span>
+        <span>Unofficial concept redesign — portfolio piece</span>
+      </div>
+    </footer>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
